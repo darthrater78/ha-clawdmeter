@@ -1,7 +1,10 @@
 name: Validate
 
 on:
+  # Branches only, so pushing a release tag does not re-run this: the tagged
+  # commit already ran on main, and release.yml checks those runs.
   push:
+    branches: ["**"]
   pull_request:
   schedule:
     - cron: "0 6 * * *"
