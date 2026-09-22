@@ -16,6 +16,7 @@ from homeassistant.util import dt as dt_util
 
 from .api import ClawdmeterAuthError, ClawdmeterClient, ClawdmeterConnectionError
 from .const import (
+    BREAKDOWN_SURFACES,
     BURN_WINDOW_FAST,
     BURN_WINDOW_SLOW,
     CONF_ACCOUNT_NAME,
@@ -68,6 +69,10 @@ class ClawdmeterData:
     sonnet_reset: datetime | None
     opus_usage: float | None
     opus_reset: datetime | None
+    # Share (%) of this week's usage per surface, and that share converted into
+    # percent of the weekly limit. Keyed by BREAKDOWN_SURFACES; absent = unknown.
+    surface_share: dict[str, float]
+    surface_week_usage: dict[str, float]
     extra_enabled: bool | None
     extra_usage: float | None
     extra_credits: float | None
@@ -128,6 +133,7 @@ class ClawdmeterDataUpdateCoordinator(DataUpdateCoordinator[ClawdmeterData]):
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
         self._logged_empty = False
+        self._logged_surfaces: set[str] = set()
         self._fetch_failures = 0
 
     @override
@@ -238,6 +244,7 @@ class ClawdmeterDataUpdateCoordinator(DataUpdateCoordinator[ClawdmeterData]):
         sonnet_reset = _reset_at(raw.get("seven_day_sonnet"))
         opus_usage = _utilization(raw.get("seven_day_opus"))
         opus_reset = _reset_at(raw.get("seven_day_opus"))
+        surface_share = self._surface_shares(raw.get("seven_day_breakdown"))
         overage = _overage(raw)
 
         self._record_sample(now.timestamp(), session_usage)
@@ -268,6 +275,8 @@ class ClawdmeterDataUpdateCoordinator(DataUpdateCoordinator[ClawdmeterData]):
             sonnet_reset=sonnet_reset,
             opus_usage=opus_usage,
             opus_reset=opus_reset,
+            surface_share=surface_share,
+            surface_week_usage=_surface_week_usage(surface_share, week_usage),
             extra_enabled=overage.enabled,
             extra_usage=overage.usage,
             extra_credits=overage.credits,
@@ -285,6 +294,35 @@ class ClawdmeterDataUpdateCoordinator(DataUpdateCoordinator[ClawdmeterData]):
             runway_over=_runway_over(time_to_limit, session_reset_in, burn_slow),
             pace_frame=_pace_frame(runway_pace),
         )
+
+    def _surface_shares(self, breakdown: Any) -> dict[str, float]:
+        """Read the per-surface percentages out of ``seven_day_breakdown``.
+
+        Rows with a surface key this integration does not know are skipped and
+        logged once, so a newly added surface shows up in the log rather than
+        silently vanishing.
+        """
+        rows = breakdown.get("rows") if isinstance(breakdown, dict) else None
+        if not isinstance(rows, list):
+            return {}
+        shares: dict[str, float] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            key = row.get("key")
+            percent = _as_float(row.get("percent"))
+            if key in BREAKDOWN_SURFACES:
+                if percent is not None:
+                    shares[key] = percent
+            elif isinstance(key, str) and key not in self._logged_surfaces:
+                LOGGER.info(
+                    "Usage breakdown reports an unknown surface %r (%s); it is not "
+                    "exposed as a sensor",
+                    key,
+                    row.get("display_name"),
+                )
+                self._logged_surfaces.add(key)
+        return shares
 
     def _record_sample(self, ts: float, pct: float | None) -> None:
         """Append a usage reading, flushing the window on a session reset."""
@@ -439,6 +477,15 @@ def _overage(raw: dict[str, Any]) -> _Overage:
     if extra is not None or spend is not None:
         return _Overage(False, None, None, None, None, severity)
     return _Overage(None, None, None, None, None, None)
+
+
+def _surface_week_usage(
+    shares: dict[str, float], week_usage: float | None
+) -> dict[str, float]:
+    """Convert each surface's share of the week into percent of the weekly limit."""
+    if week_usage is None:
+        return {}
+    return {key: share * week_usage / 100 for key, share in shares.items()}
 
 
 def _week_pace(

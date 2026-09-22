@@ -74,6 +74,24 @@
       "burn_rate_per_min": {
         "name": "Burn rate per minute"
       },
+      "chat_share": {
+        "name": "Chat share of weekly usage"
+      },
+      "chat_week_usage": {
+        "name": "Weekly chat usage"
+      },
+      "claude_code_share": {
+        "name": "Claude Code share of weekly usage"
+      },
+      "claude_code_week_usage": {
+        "name": "Weekly Claude Code usage"
+      },
+      "cowork_share": {
+        "name": "Cowork share of weekly usage"
+      },
+      "cowork_week_usage": {
+        "name": "Weekly Cowork usage"
+      },
       "extra_credits": {
         "name": "Extra usage credits"
       },
@@ -95,10 +113,16 @@
         "name": "Session limit ETA"
       },
       "opus_reset": {
-        "name": "Weekly Opus reset"
+        "name": "Weekly Opus reset (deprecated)"
       },
       "opus_usage": {
-        "name": "Weekly Opus usage"
+        "name": "Weekly Opus usage (deprecated)"
+      },
+      "other_share": {
+        "name": "Other share of weekly usage"
+      },
+      "other_week_usage": {
+        "name": "Weekly other usage"
       },
       "pace_frame": {
         "name": "Pace frame",
@@ -130,10 +154,10 @@
         "name": "Session usage"
       },
       "sonnet_reset": {
-        "name": "Weekly Sonnet reset"
+        "name": "Weekly Sonnet reset (deprecated)"
       },
       "sonnet_usage": {
-        "name": "Weekly Sonnet usage"
+        "name": "Weekly Sonnet usage (deprecated)"
       },
       "time_to_limit": {
         "name": "Time to limit"
@@ -164,6 +188,12 @@
         "description": "How often to poll the Claude usage API. The API is rate limited, so keep this reasonably high.",
         "title": "Clawdmeter options"
       }
+    }
+  },
+  "issues": {
+    "deprecated_model_sensors": {
+      "title": "Weekly Sonnet and Opus sensors are deprecated",
+      "description": "The Claude usage API no longer reports usage per model, so these sensors stay unavailable:\n\n{entities}\n\nUse the per-surface sensors instead (for example \"Weekly Claude Code usage\"), then disable the deprecated sensors to dismiss this notice. They will be removed in a future release."
     }
   }
 }

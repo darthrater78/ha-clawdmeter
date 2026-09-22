@@ -32,7 +32,9 @@ display, but great on its own dashboard too.
 
 ## ✨ Highlights
 
-- **Session, weekly, Sonnet & Opus usage** with reset timestamps and a live "resets in" countdown.
+- **Session & weekly usage** with reset timestamps and a live "resets in" countdown.
+- **Weekly usage by surface** — how much of your weekly limit went to Claude Code, chat,
+  Cowork and everything else.
 - **Burn rate (5 min & 30 min)** in %/h — see how fast you are spending right now.
 - **Time to limit** — minutes until you hit 100% at the current pace.
 - **Runway** — does the session reset before you run out? You get a pace ratio, a signed
@@ -88,15 +90,28 @@ readings sit under **Diagnostic**.
 | Runway | Runway pace · Runway margin · Limit reached before reset |
 | Pace & peaks | Weekly pace · Session resets in · Session usage peak today |
 | Mood | Animation group · Pace frame |
+| Weekly by surface | Weekly Claude Code usage · Weekly chat usage · Weekly Cowork usage · Weekly other usage |
+
+The **weekly by surface** sensors are in percent of the *weekly limit*: each surface's
+share of this week's usage times the weekly usage. They add up to roughly the weekly
+usage (the API rounds each share to a whole percent).
 
 **Diagnostic** — straight from the usage / profile API:
 
 | Group | Entities |
 | --- | --- |
 | Account | Account · Plan |
-| Usage | Session usage · Weekly usage · Weekly Sonnet usage · Weekly Opus usage |
-| Resets | Session reset · Weekly reset · Weekly Sonnet reset · Weekly Opus reset |
+| Usage | Session usage · Weekly usage |
+| Resets | Session reset · Weekly reset |
+| Surface shares | Claude Code / Chat / Cowork / Other share of weekly usage |
 | Overage | Extra usage · Extra usage status · Extra usage credits · Extra usage limit · Extra usage enabled |
+
+> [!NOTE]
+> **Weekly Sonnet / Opus sensors are deprecated.** The usage API no longer breaks usage
+> down by model — those fields come back empty — so the four Sonnet/Opus sensors are now
+> disabled by default and marked *(deprecated)*. If you still have them enabled, Home
+> Assistant shows a repair notice; switch to the per-surface sensors and disable the old
+> ones. They will be removed in a future release.
 
 ## 💤 States when Claude is idle
 

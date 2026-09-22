@@ -2,7 +2,7 @@
 
 from collections.abc import Generator
 from typing import Any
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, PropertyMock, patch
 
 from homeassistant.const import CONF_ACCESS_TOKEN
 import pytest
@@ -52,6 +52,17 @@ def _mock_storage(hass_storage: dict[str, Any]) -> None:
 def _instant_connect_retry() -> Generator[None]:
     """Keep the connection-failure retry logic but drop its backoff sleeps."""
     with patch("custom_components.clawdmeter.api.CONNECT_RETRY_DELAYS", (0.0, 0.0)):
+        yield
+
+
+@pytest.fixture
+def entity_registry_enabled_by_default() -> Generator[None]:
+    """Create every entity enabled, including the disabled-by-default ones."""
+    with patch(
+        "homeassistant.helpers.entity.Entity.entity_registry_enabled_default",
+        new_callable=PropertyMock,
+        return_value=True,
+    ):
         yield
 
 
@@ -106,13 +117,18 @@ def usage_payload() -> dict[str, Any]:
             "utilization": 40,
             "resets_at": "2026-07-01T12:00:00+00:00",
         },
-        "seven_day_sonnet": {
-            "utilization": 15,
-            "resets_at": "2026-06-30T12:00:00+00:00",
-        },
-        "seven_day_opus": {
-            "utilization": 8,
-            "resets_at": "2026-06-29T12:00:00+00:00",
+        # The live API returns null for both per-model windows.
+        "seven_day_sonnet": None,
+        "seven_day_opus": None,
+        "seven_day_breakdown": {
+            "as_of": "2026-06-25T11:55:00+00:00",
+            "window_started_at": "2026-06-24T12:00:00+00:00",
+            "rows": [
+                {"key": "claude_code", "display_name": "Claude Code", "percent": 90},
+                {"key": "chat", "display_name": "Chats", "percent": 0},
+                {"key": "cowork", "display_name": "Cowork", "percent": 10},
+                {"key": "other", "display_name": "Other", "percent": 0},
+            ],
         },
         "extra_usage": {
             "is_enabled": True,

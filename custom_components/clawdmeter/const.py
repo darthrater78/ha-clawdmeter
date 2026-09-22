@@ -67,6 +67,17 @@ SAMPLE_RETENTION: Final = timedelta(minutes=30)
 # The animation rate stays "warming up" until the window spans at least this.
 RATE_WARMUP: Final = timedelta(minutes=2)
 
+# Usage surfaces reported in the weekly ``seven_day_breakdown``. The API does not
+# split usage by model; ``seven_day_sonnet`` / ``seven_day_opus`` come back null,
+# so the per-model sensors are deprecated in favour of these.
+BREAKDOWN_SURFACES: Final = ("claude_code", "chat", "cowork", "other")
+DEPRECATED_MODEL_SENSORS: Final = (
+    "sonnet_usage",
+    "sonnet_reset",
+    "opus_usage",
+    "opus_reset",
+)
+
 # Animation mood thresholds, in percent-per-minute (mirrors the device engine).
 GROUP_NORMAL_RATE: Final = 0.10
 GROUP_ACTIVE_RATE: Final = 0.20
