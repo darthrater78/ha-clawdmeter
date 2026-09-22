@@ -24,13 +24,9 @@ categories:
     labels:
       - "dependencies"
       - "build"
+# Published automatically when a vX.Y.Z tag is pushed (release.yml), so the
+# template carries no hand-edited placeholders.
 template: |
-  ## Check list (to be removed before releasing)
-
-  [ ] Check stable version reference in documentation is updated
-
-  ## Overview of changes
-
   ## Changes
 
   $CHANGES
