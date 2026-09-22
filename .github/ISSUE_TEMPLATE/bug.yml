@@ -28,7 +28,7 @@ body:
             open one issue for each issue).
           required: true
         # yamllint disable rule:line-length
-        - label: "This issue is not a duplicate issue of any [previous issues](https://github.com/corgan2222/ha-clawdmeter/issues?q=is%3Aissue+label%3A%22bug%22+)."
+        - label: "This issue is not a duplicate issue of any [previous issues](https://github.com/darthrater78/ha-clawdmeter/issues?q=is%3Aissue+label%3A%22bug%22+)."
           # yamllint enable rule:line-length
           required: true
   - type: textarea

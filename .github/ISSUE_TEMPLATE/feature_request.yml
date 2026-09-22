@@ -19,7 +19,7 @@ body:
             request).
           required: true
         # yamllint disable rule:line-length
-        - label: "This issue is not a duplicate feature request of [previous feature requests](https://github.com/corgan2222/ha-clawdmeter/issues?q=is%3Aissue+label%3A%22enhancement%22+)."
+        - label: "This issue is not a duplicate feature request of [previous feature requests](https://github.com/darthrater78/ha-clawdmeter/issues?q=is%3Aissue+label%3A%22enhancement%22+)."
           # yamllint enable rule:line-length
           required: true
 

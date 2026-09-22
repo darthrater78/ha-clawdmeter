@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/hero.png" alt="Clawdmeter" width="840">
+  <img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/hero.png" alt="Clawdmeter" width="840">
 </p>
 
 <h1 align="center">Clawdmeter — Claude Usage for Home Assistant</h1>
@@ -14,15 +14,20 @@
 </p>
 
 <p align="center">
-  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
   <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter"><img alt="Add integration to Home Assistant" src="https://my.home-assistant.io/badges/config_flow_start.svg"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/corgan2222/esphome-modular-lvgl-buttons"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-esp-display.png" alt="Clawdmeter ESPHome display" height="40"></a>
-  <a href="https://github.com/corgan2222/ha-clawdmeter"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-ha-integration.png" alt="Clawdmeter Home Assistant integration" height="40"></a>
-  <a href="https://github.com/corgan2222/lovelace-clawdmeter"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-lovelace-card.png" alt="Clawdmeter Lovelace card" height="40"></a>
+  <a href="https://github.com/corgan2222/esphome-modular-lvgl-buttons"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-esp-display.png" alt="Clawdmeter ESPHome display" height="40"></a>
+  <a href="https://github.com/darthrater78/ha-clawdmeter"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-ha-integration.png" alt="Clawdmeter Home Assistant integration" height="40"></a>
+  <a href="https://github.com/corgan2222/lovelace-clawdmeter"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-lovelace-card.png" alt="Clawdmeter Lovelace card" height="40"></a>
 </p>
+
+> [!NOTE]
+> This is a fork of [corgan2222/ha-clawdmeter](https://github.com/corgan2222/ha-clawdmeter)
+> by Stefan Knaak. Report issues for this fork
+> [here](https://github.com/darthrater78/ha-clawdmeter/issues).
 
 Clawdmeter polls Anthropic's usage API and turns it into a full set of Home Assistant
 sensors — session and weekly limits, reset countdowns, and a layer of **computed
@@ -131,13 +136,13 @@ keep history graphs continuous and meaningful:
 ## 🚀 Installation
 
 <p align="center">
-  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
   <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter"><img alt="Add integration to Home Assistant" src="https://my.home-assistant.io/badges/config_flow_start.svg"></a>
 </p>
 
 **HACS (recommended)**
 
-1. **[Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration)** (or in HACS: ⋮ → **Custom repositories** → add it, category **Integration**), then install **Clawdmeter** and restart Home Assistant.
+1. **[Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration)** (or in HACS: ⋮ → **Custom repositories** → add it, category **Integration**), then install **Clawdmeter** and restart Home Assistant.
 2. **[Add the Clawdmeter integration](https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter)** (or **Settings → Devices & Services → Add Integration → Clawdmeter**).
 
 **Manual** — copy `custom_components/clawdmeter` into your `config/custom_components/`
