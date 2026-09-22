@@ -638,3 +638,108 @@ async def test_transient_error_keeps_last_values(
     await _push_usage(hass, aioclient_mock, mock_config_entry, 25)
     assert float(hass.states.get(SESSION_USAGE).state) == 25.0
     assert mock_config_entry.runtime_data.last_update_success is True
+
+
+CLAUDE_CODE_WEEK = "sensor.claude_corgan_max_weekly_claude_code_usage"
+CHAT_WEEK = "sensor.claude_corgan_max_weekly_chat_usage"
+COWORK_WEEK = "sensor.claude_corgan_max_weekly_cowork_usage"
+OTHER_WEEK = "sensor.claude_corgan_max_weekly_other_usage"
+CLAUDE_CODE_SHARE = "sensor.claude_corgan_max_claude_code_share_of_weekly_usage"
+COWORK_SHARE = "sensor.claude_corgan_max_cowork_share_of_weekly_usage"
+
+
+@pytest.mark.usefixtures("mock_usage")
+async def test_surface_breakdown(
+    hass: HomeAssistant, mock_config_entry: MockConfigEntry
+) -> None:
+    """Test each surface's share is converted into percent of the weekly limit."""
+    await setup_integration(hass, mock_config_entry)
+
+    assert float(hass.states.get(CLAUDE_CODE_SHARE).state) == 90.0
+    assert float(hass.states.get(COWORK_SHARE).state) == 10.0
+    # Weekly usage is 40%: 90% of it is 36 points, 10% is 4 points.
+    assert float(hass.states.get(CLAUDE_CODE_WEEK).state) == pytest.approx(36.0)
+    assert float(hass.states.get(COWORK_WEEK).state) == pytest.approx(4.0)
+    assert float(hass.states.get(CHAT_WEEK).state) == 0.0
+    assert float(hass.states.get(OTHER_WEEK).state) == 0.0
+
+
+async def test_surface_breakdown_tolerates_odd_payloads(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test malformed rows are skipped and an unknown surface is logged once."""
+    rows = [
+        {"key": "claude_code", "percent": "75"},
+        {"key": "chat"},
+        "not-a-row",
+        {"key": "voice", "display_name": "Voice", "percent": 25},
+    ]
+    payload = {
+        "seven_day": {"utilization": 20, "resets_at": "2026-07-01T12:00:00+00:00"},
+        "seven_day_breakdown": {"rows": rows},
+    }
+    aioclient_mock.get(USAGE_ENDPOINT, json=payload)
+    with caplog.at_level(logging.INFO):
+        await setup_integration(hass, mock_config_entry)
+
+    assert float(hass.states.get(CLAUDE_CODE_SHARE).state) == 75.0
+    assert float(hass.states.get(CLAUDE_CODE_WEEK).state) == pytest.approx(15.0)
+    # A row without a percent, and a surface absent from the rows, stay unknown.
+    assert hass.states.get(CHAT_WEEK).state == STATE_UNKNOWN
+    assert hass.states.get(OTHER_WEEK).state == STATE_UNKNOWN
+    assert caplog.text.count("unknown surface 'voice'") == 1
+
+    caplog.clear()
+    await mock_config_entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    assert "unknown surface" not in caplog.text
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"seven_day_breakdown": {"rows": [{"key": "claude_code", "percent": 90}]}},
+        {"seven_day": {"utilization": 40}, "seven_day_breakdown": {"rows": None}},
+        {"seven_day": {"utilization": 40}, "seven_day_breakdown": []},
+    ],
+    ids=["no-weekly-usage", "rows-null", "breakdown-wrong-type"],
+)
+async def test_surface_breakdown_unavailable(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+    payload: dict[str, Any],
+) -> None:
+    """Test the surface sensors stay unknown when their inputs are missing."""
+    aioclient_mock.get(USAGE_ENDPOINT, json=payload)
+    await setup_integration(hass, mock_config_entry)
+
+    assert hass.states.get(CLAUDE_CODE_WEEK).state == STATE_UNKNOWN
+
+
+async def test_deprecated_model_windows_still_parsed(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Test an account that still receives per-model windows keeps its values."""
+    aioclient_mock.get(
+        USAGE_ENDPOINT,
+        json={
+            "seven_day_sonnet": {
+                "utilization": 15,
+                "resets_at": "2026-06-30T12:00:00+00:00",
+            },
+            "seven_day_opus": {"utilization": 8},
+        },
+    )
+    await setup_integration(hass, mock_config_entry)
+
+    data = mock_config_entry.runtime_data.data
+    assert data.sonnet_usage == 15
+    assert data.sonnet_reset == datetime(2026, 6, 30, 12, tzinfo=UTC)
+    assert data.opus_usage == 8
+    assert data.opus_reset is None

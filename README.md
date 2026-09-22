@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/hero.png" alt="Clawdmeter" width="840">
+  <img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/hero.png" alt="Clawdmeter" width="840">
 </p>
 
 <h1 align="center">Clawdmeter — Claude Usage for Home Assistant</h1>
@@ -14,15 +14,20 @@
 </p>
 
 <p align="center">
-  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
   <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter"><img alt="Add integration to Home Assistant" src="https://my.home-assistant.io/badges/config_flow_start.svg"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/corgan2222/esphome-modular-lvgl-buttons"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-esp-display.png" alt="Clawdmeter ESPHome display" height="40"></a>
-  <a href="https://github.com/corgan2222/ha-clawdmeter"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-ha-integration.png" alt="Clawdmeter Home Assistant integration" height="40"></a>
-  <a href="https://github.com/corgan2222/lovelace-clawdmeter"><img src="https://raw.githubusercontent.com/corgan2222/ha-clawdmeter/main/images/clawdmeter-lovelace-card.png" alt="Clawdmeter Lovelace card" height="40"></a>
+  <a href="https://github.com/corgan2222/esphome-modular-lvgl-buttons"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-esp-display.png" alt="Clawdmeter ESPHome display" height="40"></a>
+  <a href="https://github.com/darthrater78/ha-clawdmeter"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-ha-integration.png" alt="Clawdmeter Home Assistant integration" height="40"></a>
+  <a href="https://github.com/corgan2222/lovelace-clawdmeter"><img src="https://raw.githubusercontent.com/darthrater78/ha-clawdmeter/main/images/clawdmeter-lovelace-card.png" alt="Clawdmeter Lovelace card" height="40"></a>
 </p>
+
+> [!NOTE]
+> This is a fork of [corgan2222/ha-clawdmeter](https://github.com/corgan2222/ha-clawdmeter)
+> by Stefan Knaak. Report issues for this fork
+> [here](https://github.com/darthrater78/ha-clawdmeter/issues).
 
 Clawdmeter polls Anthropic's usage API and turns it into a full set of Home Assistant
 sensors — session and weekly limits, reset countdowns, and a layer of **computed
@@ -32,7 +37,9 @@ display, but great on its own dashboard too.
 
 ## ✨ Highlights
 
-- **Session, weekly, Sonnet & Opus usage** with reset timestamps and a live "resets in" countdown.
+- **Session & weekly usage** with reset timestamps and a live "resets in" countdown.
+- **Weekly usage by surface** — how much of your weekly limit went to Claude Code, chat,
+  Cowork and everything else.
 - **Burn rate (5 min & 30 min)** in %/h — see how fast you are spending right now.
 - **Time to limit** — minutes until you hit 100% at the current pace.
 - **Runway** — does the session reset before you run out? You get a pace ratio, a signed
@@ -88,15 +95,28 @@ readings sit under **Diagnostic**.
 | Runway | Runway pace · Runway margin · Limit reached before reset |
 | Pace & peaks | Weekly pace · Session resets in · Session usage peak today |
 | Mood | Animation group · Pace frame |
+| Weekly by surface | Weekly Claude Code usage · Weekly chat usage · Weekly Cowork usage · Weekly other usage |
+
+The **weekly by surface** sensors are in percent of the *weekly limit*: each surface's
+share of this week's usage times the weekly usage. They add up to roughly the weekly
+usage (the API rounds each share to a whole percent).
 
 **Diagnostic** — straight from the usage / profile API:
 
 | Group | Entities |
 | --- | --- |
 | Account | Account · Plan |
-| Usage | Session usage · Weekly usage · Weekly Sonnet usage · Weekly Opus usage |
-| Resets | Session reset · Weekly reset · Weekly Sonnet reset · Weekly Opus reset |
+| Usage | Session usage · Weekly usage |
+| Resets | Session reset · Weekly reset |
+| Surface shares | Claude Code / Chat / Cowork / Other share of weekly usage |
 | Overage | Extra usage · Extra usage status · Extra usage credits · Extra usage limit · Extra usage enabled |
+
+> [!NOTE]
+> **Weekly Sonnet / Opus sensors are deprecated.** The usage API no longer breaks usage
+> down by model — those fields come back empty — so the four Sonnet/Opus sensors are now
+> disabled by default and marked *(deprecated)*. If you still have them enabled, Home
+> Assistant shows a repair notice; switch to the per-surface sensors and disable the old
+> ones. They will be removed in a future release.
 
 ## 💤 States when Claude is idle
 
@@ -116,13 +136,13 @@ keep history graphs continuous and meaningful:
 ## 🚀 Installation
 
 <p align="center">
-  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration"><img alt="Add repository to HACS" src="https://my.home-assistant.io/badges/hacs_repository.svg"></a>
   <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter"><img alt="Add integration to Home Assistant" src="https://my.home-assistant.io/badges/config_flow_start.svg"></a>
 </p>
 
 **HACS (recommended)**
 
-1. **[Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=corgan2222&repository=ha-clawdmeter&category=integration)** (or in HACS: ⋮ → **Custom repositories** → add it, category **Integration**), then install **Clawdmeter** and restart Home Assistant.
+1. **[Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=darthrater78&repository=ha-clawdmeter&category=integration)** (or in HACS: ⋮ → **Custom repositories** → add it, category **Integration**), then install **Clawdmeter** and restart Home Assistant.
 2. **[Add the Clawdmeter integration](https://my.home-assistant.io/redirect/config_flow_start/?domain=clawdmeter)** (or **Settings → Devices & Services → Add Integration → Clawdmeter**).
 
 **Manual** — copy `custom_components/clawdmeter` into your `config/custom_components/`

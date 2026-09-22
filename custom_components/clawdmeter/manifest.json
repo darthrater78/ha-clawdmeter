@@ -1,12 +1,12 @@
 {
   "domain": "clawdmeter",
   "name": "Clawdmeter",
-  "codeowners": ["@corgan2222"],
+  "codeowners": ["@darthrater78"],
   "config_flow": true,
-  "documentation": "https://github.com/corgan2222/ha-clawdmeter",
+  "documentation": "https://github.com/darthrater78/ha-clawdmeter",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/corgan2222/ha-clawdmeter/issues",
+  "issue_tracker": "https://github.com/darthrater78/ha-clawdmeter/issues",
   "requirements": [],
-  "version": "0.0.2"
+  "version": "0.1.0"
 }

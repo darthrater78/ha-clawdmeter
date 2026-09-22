@@ -138,16 +138,16 @@
                 "name": "Sitzungsnutzung"
             },
             "sonnet_reset": {
-                "name": "Wöchentlicher Sonnet-Reset"
+                "name": "Wöchentlicher Sonnet-Reset (veraltet)"
             },
             "sonnet_usage": {
-                "name": "Wöchentliche Sonnet-Nutzung"
+                "name": "Wöchentliche Sonnet-Nutzung (veraltet)"
             },
             "opus_reset": {
-                "name": "Wöchentlicher Opus-Reset"
+                "name": "Wöchentlicher Opus-Reset (veraltet)"
             },
             "opus_usage": {
-                "name": "Wöchentliche Opus-Nutzung"
+                "name": "Wöchentliche Opus-Nutzung (veraltet)"
             },
             "time_to_limit": {
                 "name": "Zeit bis zum Limit"
@@ -163,7 +163,37 @@
             },
             "week_usage": {
                 "name": "Wöchentliche Nutzung"
+            },
+            "claude_code_week_usage": {
+                "name": "Wöchentliche Claude Code-Nutzung"
+            },
+            "claude_code_share": {
+                "name": "Claude Code-Anteil an der Wochennutzung"
+            },
+            "chat_week_usage": {
+                "name": "Wöchentliche Chat-Nutzung"
+            },
+            "chat_share": {
+                "name": "Chat-Anteil an der Wochennutzung"
+            },
+            "cowork_week_usage": {
+                "name": "Wöchentliche Cowork-Nutzung"
+            },
+            "cowork_share": {
+                "name": "Cowork-Anteil an der Wochennutzung"
+            },
+            "other_week_usage": {
+                "name": "Wöchentliche sonstige Nutzung"
+            },
+            "other_share": {
+                "name": "Sonstiger Anteil an der Wochennutzung"
             }
+        }
+    },
+    "issues": {
+        "deprecated_model_sensors": {
+            "title": "Wöchentliche Sonnet- und Opus-Sensoren sind veraltet",
+            "description": "Die Claude-Nutzungs-API meldet die Nutzung nicht mehr pro Modell, daher bleiben diese Sensoren nicht verfügbar:\n\n{entities}\n\nVerwende stattdessen die Sensoren pro Oberfläche (zum Beispiel „Wöchentliche Claude Code-Nutzung“) und deaktiviere die veralteten Sensoren, um diesen Hinweis zu schließen. Sie werden in einer zukünftigen Version entfernt."
         }
     }
 }

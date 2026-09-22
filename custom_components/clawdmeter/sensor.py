@@ -11,12 +11,21 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTime
+from homeassistant.const import PERCENTAGE, EntityCategory, Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from .const import ANIMATION_GROUPS, OVERAGE_SEVERITIES, PACE_FRAMES
+from .const import (
+    ANIMATION_GROUPS,
+    BREAKDOWN_SURFACES,
+    DEPRECATED_MODEL_SENSORS,
+    DOMAIN,
+    OVERAGE_SEVERITIES,
+    PACE_FRAMES,
+)
 from .coordinator import (
     ClawdmeterConfigEntry,
     ClawdmeterData,
@@ -77,6 +86,8 @@ SENSORS: tuple[ClawdmeterSensorEntityDescription, ...] = (
     ClawdmeterSensorEntityDescription(
         key="sonnet_usage",
         translation_key="sonnet_usage",
+        # Deprecated: the usage API returns null for the per-model windows.
+        entity_registry_enabled_default=False,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
@@ -86,6 +97,8 @@ SENSORS: tuple[ClawdmeterSensorEntityDescription, ...] = (
     ClawdmeterSensorEntityDescription(
         key="sonnet_reset",
         translation_key="sonnet_reset",
+        # Deprecated: the usage API returns null for the per-model windows.
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.sonnet_reset,
@@ -93,6 +106,8 @@ SENSORS: tuple[ClawdmeterSensorEntityDescription, ...] = (
     ClawdmeterSensorEntityDescription(
         key="opus_usage",
         translation_key="opus_usage",
+        # Deprecated: the usage API returns null for the per-model windows.
+        entity_registry_enabled_default=False,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
@@ -102,9 +117,23 @@ SENSORS: tuple[ClawdmeterSensorEntityDescription, ...] = (
     ClawdmeterSensorEntityDescription(
         key="opus_reset",
         translation_key="opus_reset",
+        # Deprecated: the usage API returns null for the per-model windows.
+        entity_registry_enabled_default=False,
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.opus_reset,
+    ),
+    *(
+        ClawdmeterSensorEntityDescription(
+            key=f"{surface}_share",
+            translation_key=f"{surface}_share",
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+            suggested_display_precision=0,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            value_fn=lambda data, surface=surface: data.surface_share.get(surface),
+        )
+        for surface in BREAKDOWN_SURFACES
     ),
     ClawdmeterSensorEntityDescription(
         key="extra_usage",
@@ -159,6 +188,19 @@ SENSORS: tuple[ClawdmeterSensorEntityDescription, ...] = (
         translation_key="plan",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: data.plan,
+    ),
+    *(
+        ClawdmeterSensorEntityDescription(
+            key=f"{surface}_week_usage",
+            translation_key=f"{surface}_week_usage",
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+            suggested_display_precision=1,
+            value_fn=(
+                lambda data, surface=surface: data.surface_week_usage.get(surface)
+            ),
+        )
+        for surface in BREAKDOWN_SURFACES
     ),
     ClawdmeterSensorEntityDescription(
         key="session_reset_in",
@@ -274,6 +316,43 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     async_add_entities(
         ClawdmeterSensor(coordinator, entry, description) for description in SENSORS
+    )
+    _async_check_deprecated_sensors(hass, entry)
+
+
+def _async_check_deprecated_sensors(
+    hass: HomeAssistant, entry: ClawdmeterConfigEntry
+) -> None:
+    """Raise a repair issue while a deprecated per-model sensor is still enabled.
+
+    The issue is only raised when the API really omits the per-model windows, so
+    an account that still receives them is not nagged.
+    """
+    issue_id = f"deprecated_model_sensors_{entry.entry_id}"
+    data = entry.runtime_data.data
+    registry = er.async_get(hass)
+    enabled = [
+        entity.entity_id
+        for key in DEPRECATED_MODEL_SENSORS
+        if (
+            entity_id := registry.async_get_entity_id(
+                Platform.SENSOR, DOMAIN, f"{entry.entry_id}_{key}"
+            )
+        )
+        and (entity := registry.async_get(entity_id)) is not None
+        and not entity.disabled
+    ]
+    if not enabled or data.sonnet_usage is not None or data.opus_usage is not None:
+        ir.async_delete_issue(hass, DOMAIN, issue_id)
+        return
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        issue_id,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key="deprecated_model_sensors",
+        translation_placeholders={"entities": "\n".join(f"- {e}" for e in enabled)},
     )
 
 
