@@ -28,3 +28,21 @@ ruff format --check .
 ```
 
 After a notable change, bump `version` in `custom_components/clawdmeter/manifest.json`.
+
+## Releasing
+
+Release notes are drafted automatically by Release Drafter from merged pull requests
+(labels decide the section). To publish a release:
+
+1. Merge a pull request that bumps `version` in `custom_components/clawdmeter/manifest.json`.
+2. Tag the merged commit on `main` with the same version and push the tag:
+
+   ```bash
+   git checkout main && git pull
+   git tag v0.1.0
+   git push origin v0.1.0
+   ```
+
+The **Release** workflow then checks the tag is on `main`, matches `manifest.json` and
+that CI passed on that commit, publishes the drafted release and attaches
+`clawdmeter.zip`. Don't publish the draft by hand — push the tag instead.
